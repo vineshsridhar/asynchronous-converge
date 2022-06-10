@@ -248,7 +248,7 @@ for any $H'$ that results from AddRandomEdgesAdaptive.
 \textit{Case 2: $|S| > \epsilon * n/5$}\\
 Here there are a relatively large amount of senders, so we lower bound $\Pr\big [\sum_{u \in {H^*}} Y_u \geq 2|S| \big | E_{H^*}\big ]$ by computing $\Pr\big [(\sum_{u \in {H^*}} Y_u) = |H^*| \big | E_{H^*}\big ]$. We know that $H^* \geq \epsilon * n$ and we assumed at the start that $|S| \leq \epsilon * n / 2$, so $H^* > 2*|S|$. Therefore,
 \begin{center}
-    $\Pr\big [\sum_{u \in {H^*}} Y_u \geq 2|S| \big | E_{H^*}\big ] \leq \Pr\big [(\sum_{u \in {H^*}} Y_u) = |H^*| \big | E_{H^*}\big ]$,
+    $\Pr\big [\sum_{u \in {H^*}} Y_u \geq 2|S| \big | E_{H^*}\big ] \geq \Pr\big [(\sum_{u \in {H^*}} Y_u) = |H^*| \big | E_{H^*}\big ]$,
 \end{center}
 so it suffices to lower bound $\Pr\big [(\sum_{u \in {H^*}} Y_u) = |H^*| \big | E_{H^*}\big ]$, the probability that all parties in $H^*$ have $m$ by the end of the round. 
 
