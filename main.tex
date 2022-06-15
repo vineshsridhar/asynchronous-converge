@@ -660,6 +660,29 @@ Let $S_j$ be the set of messages $p_j$ has. Assume $p_j$ sends a bundle to $p_i$
 
 Any two sets of messages that are at least size $n - 2t$ share at least 1 message, i.e. if a party receives bundles from those respective parties, they'll get two ``votes" for that message. What about 3 sets? How many messages get 2 votes in that case? Messages in the set $(S_1 \cap S_2) \cup (S_1 \cap S_3) \cup (S_2 \cap S_3)$ get at least 2 votes. How big is this set? By definition, $|S_i \cap S_j| \geq 1$, so it's at least 1. 
 
+\begin{lemma}
+If $|S_1|, |S_2|, |S_3| \geq n - 2t$, then $|(S_1 \cap S_2) \cup (S_1 \cap S_3) \cup (S_2 \cap S_3)| \geq max\{v, n - 2t - (v - 1)\}$ where $v = min\{|S_1 \cup S_2|, |S_1 \cup S_3|, |S_2 \cup S_3|\}$ if $v < (n - 2t + 1) / 2$ and  $v = max\{|S_1 \cup S_2|, |S_1 \cup S_3|, |S_2 \cup S_3|\}$ otherwise
+\end{lemma}
+
+\begin{proof}
+Consider an arbitrary $S_1$ and $S_2$. We will construct an $S_3$ that minimizes $|(S_1 \cap S_2) \cup (S_1 \cap S_3) \cup (S_2 \cap S_3)|$. First let $v = |S_1 \cap S_2|$. Then $|S_1 \cup S_2| = n - 2t + n - 2t - v = n - t + 1 - v = n - t - (v - 1)$. In addition, $H \ (S_1 \cup S_2) = n - t - (n - t - (v - 1)) = v - 1$.
+
+So if we want to minimize $|(S_1 \cap S_2) \cup (S_1 \cap S_3) \cup (S_2 \cap S_3)|$, we begin by giving $S_3$ all $v - 1$ messages held by neither $S_1$ nor $S_2$. That leaves $n - 2t - (v - 1)$ messages we have left to allocate. This gives us two cases:
+
+\emph{Case 1 $n - 2t - (v-1) < v$:}
+
+Then we give $S_3$ $n - 2t - (v-1)$ messages of the $v$ already shared between $S_1$ and $S_2$. Because those messages already have 2 votes, they count for nothing. Thus, only $v$ messages have at least 2 votes, so $|(S_1 \cap S_2) \cup (S_1 \cap S_3) \cup (S_2 \cap S_3)| \geq v$.
+
+Note that as $v$ increases, the number of messages that have 2 votes increases, so $v = max\{|S_1 \cup S_2|, |S_1 \cup S_3|, |S_2 \cup S_3|\}$
+
+\emph{Case 2 $n - 2t - (v-1) \geq v$:}
+
+Then we give $S_3$ all $v$ messages shared between $S_1$ and $S_2$ and $n - 2t - (v-1) - v$ more. The remaining $n - 2t - (v-1) - v$ messages are held by either $S_1$ or $S_2$ but not both, so the number of messages that have two votes is $n - 2t - (v - 1) - v + v = n - 2t - (v-1) \leq |(S_1 \cap S_2) \cup (S_1 \cap S_3) \cup (S_2 \cap S_3)|$
+
+Note that as $v$ increases, the number of messages that have 2 votes decreases, so $v = min\{|S_1 \cup S_2|, |S_1 \cup S_3|, |S_2 \cup S_3|\}$
+
+\end{proof}
+
 
 \bibliography{References}
 \bibliographystyle{plain}
