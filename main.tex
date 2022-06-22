@@ -215,8 +215,8 @@ First, we define $E_{H'}$ as the event that AddRandomEdgesAdaptive outputs $(\cd
 \begin{center}
     $\Pr \big[\sum_{u \in H'} Y_u \geq 2|S| \big | E_H'\big ] \geq \Pr\big [\sum_{u \in H^*} Y_u \geq 2|S| \big | E_{H^*}\big ]$
 \end{center}
-for all possible $E_{H'}$. Now we split our analysis into two cases: one in which $|S| \leq \epsilon * n/5$ and the other in which $|S| > \epsilon * n/5$. \\
-\textit{Case 1: $|S| \leq \epsilon * n/5$}\\
+for all possible $E_{H'}$. Now we split our analysis into two cases: one in which $|S| \leq \epsilon * n/5$ and the other in which $|S| > \epsilon * n/5$.\\
+\textit{Case 1: $|S| \leq \epsilon * n/5$}
 
 In this case, we lower bound $\Pr\big [\sum_{u \in H^*} Y_u \geq 2|S| \big | E_{H^*}\big ]$ by applying a lower tail Chernoff bound. To do that, we need to show that $\{Y_u\}_{u\in H^*}$ are independent. Of course, this must be true because edges to any $u$ in $H^*$ are generated uniformly and independently, and so they are independent when conditioned on $E_{H^*}$ as well. We will apply the bound to the random variable $Y = \sum_{u \in H^*}Y_u$.
 \begin{center}
@@ -243,8 +243,7 @@ Therefore, for $|S| < \epsilon * n / 5$,
     $ \geq \Pr\big [Y \geq 2|S| \big | E_{H^*}\big ]$ \\ $ = 1 - \Pr\big [Y < 2|S| \big | E_{H^*}] $ \\ $> 1 - \Pr\big [Y < \mu / 2 \big | E_{H^*}\big ]$ \\ $ > 1 - (\frac{e}{2})^{-\epsilon*k/2}$
 \end{center}
 
-for any $H'$ that results from AddRandomEdgesAdaptive.
-
+for any $H'$ that results from AddRandomEdgesAdaptive.\\
 \textit{Case 2: $|S| > \epsilon * n/5$}\\
 Here there are a relatively large amount of senders, so we lower bound $\Pr\big [\sum_{u \in {H^*}} Y_u \geq 2|S| \big | E_{H^*}\big ]$ by computing $\Pr\big [(\sum_{u \in {H^*}} Y_u) = |H^*| \big | E_{H^*}\big ]$. We know that $H^* \geq \epsilon * n$ and we assumed at the start that $|S| \leq \epsilon * n / 2$, so $H^* > 2*|S|$. Therefore,
 \begin{center}
