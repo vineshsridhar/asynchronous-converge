@@ -620,6 +620,23 @@ For any $n, t$, it will take at most 4 rounds to agree on a core-set.
 In round 2, every party holds $n - 2t$ messages. $|D_2| \geq 1$, so some bundle from an honest party $p_i$ is delivered to at least $n - 2t$ honest parties in round 2. Call this bundle $S$. $n - 2t$ distinct honest parties hold $S$ in round 3, so by the above lemma, all honest parties will have $S$ at the beginning of round 4. $|S| \geq n - 2t$ and $S$ is held by all honest parties, so it is a core-set.
 \end{proof}
 
+\subsection{Canetti ACS}
+In Ran Canetti's PhD thesis \cite{canetti1996studies}, he proposes an interesting ACS implementation. Like the implementations we have seen in section 5, the protocol begins with an asynchronous broadcast primitive, and ACS is used to agree upon a set of $n - t$ messages to output. Unlike Ben-Or ACS \cite{ben1994asynchronous}, before running the ABAs, Canetti's ACS runs a protocol very similar to ours: for $\log n$ asynchronous rounds, parties share `index sets' that indicate what messages they have. Once a party retrieves the messages that correspond to $n - t$ index sets, they advance a round. This is basically converge in the $p=1$ case. Canetti proves that, at the end of the $\log n$ rounds, every honest party holds the same set of $n - t$ messages (though they may hold more, hence the subsequent Byzantine Agreements that select what the honest parties output). This appears to not be needed--Ben-Or et al. overcome this problem by having parties wait for messages to arrive before inputting data into each $BA$ \cite{ben1994asynchronous}. Interestingly, the idea of front-loading message-collection appears again in Dumbo2-ACS (in the form of proofs, to reduce communication complexity) \cite{guo2020dumbo}. Regardless, the proof of correctness is interesting (despite the fact that we've shown that it only takes $4$ rounds, not $\log n$ rounds, to converge). I've reproduced it (with slight modification for clarity) below:
+
+\begin{lemma}
+By the end of round $r$, every set of at most $2^r$ uncorrupted parties $D$ satisfies $|\cap_{j \in D} U_j^r| \geq m$.
+\end{lemma}
+
+\begin{proof}
+The base of induction $(r=0)$ is immediate from Step 1 of the protocol (in this step, each party waits for $n-t$ messages). For the induction step, consider a set $D$ of up to $2^r$ uncorrupted parties. We first observe that for every two parties $P_j,P_k \in D$, we have $|F_j^r \cap F_k^r| \geq t + 1$ ($F_j^r$ is the set of parties from which $P_j$ has received a message by the end of round $r$), since $n \geq 3t +1$ and $|F_j^r| \geq n - t$ for each $j$. therefore, there exists at least one \emph{uncorrupted} party $P_l \in F_j^r \cap F_k^r$; e call $P_l$ an \emph{arbiter} of $P_j$ and $P_k$. part $P_j$ (resp. $P_k$) has received the $(r, S_l)$ message; furthermore, $U^{r-1}_l \subseteq S_l$. this, $U_l^{r-1} \subseteq U_j^r$ (resp. $U_l^{r-1} \subseteq U_k^r$).
+
+Consider an arbitrary partition of the set $D$ to pairs of parties, choose an arbiter for each pair, and let $D'$ be the set of these arbiters; thus, $|D'| \leq 2^{r-1}|$. By the induction hypothesis, we have $n - t \leq |\cap_{j\in D'} U_j^{r-1}|$. Every party in $D$ has an arbiter in $D'$, thus $\cap_{j \in D'} U_j^{r-1} \subseteq \cap_j \in D U_j^r$. Therefore, we have that $n - t \leq |\cap_{j\in D} U_j^{r}|$.
+
+Thus, at the end of $\log n$ rounds, all honest parties share $n - t$ messages.
+\end{proof}
+
+
+
 \section{General case: probability of sending = $p$}
 
 Things to try proving:
@@ -682,6 +699,39 @@ Note that as $v$ increases, the number of messages that have 2 votes decreases, 
 
 \end{proof}
 
+The following lemma is interesting, but probably not useful:
+
+\begin{lemma}
+Assume that all honest parties hold $n-2t$ honest messages. There must be at least $c$ messages that are held by $n - 2t - c + 1$ parties
+\end{lemma}
+
+\begin{proof}
+Assume instead that $c - 1$ messages are held by $n - 2t - c + 1$ parties, and that the remaining honest messages are held by at most $n - 2t - c$ parties. If we show that the total number of messages held is less than $(n - 2t)*(n - t)$, then we have shown that at least one honest party holds less than $n - 2t$ honest messages. 
+
+Regardless of configuration, the largest amount of messages that can be held is $(n - t) * (c-1) + (n - 2t - c) * (n - t - (c-1))$--$c$ messages are held by all $n - t$ parties and the remaining $n -t - c$ messages are held by exactly $n - 2t - c$ parties. \\
+$= c(n - t)  -  (n - t) + (n - 2t)(n - t) - c(n - t) - c(n - 2t) + n - 2t + c(c-1)$\\
+$= (n - 2t)(n - t) - c(n - 2t) + c^2 - t$\\
+$< (n - 2t)(n - t)$ as $c \leq n - 2t$.
+
+We have shown that, regardless of how the messages are allocated to the parties, if fewer than $c$ messages are each held by at least $n - 2t - c + 1$ parties, at least one party must have fewer than $n - 2t$ messages, contradicting our initial assumption.
+\end{proof}
+
+\section{A Backwards Analysis}
+Any analysis of converge that fixes a certain message and tries to prove how long it takes until it appears in the coreset fails because it may be the case that the message was never distributed because the adversary has prevented it from sending anything. What if we were to argue backwards, starting with a final coreset and computing how long it took to get there? But to do that, we first must show that the protocol does succeed if given an unlimited number of rounds. We first claim that, during every round of converge, either (1) some honest party learns some new honest message with a nonzero probability or (2) a coreset exists.
+
+\begin{lemma}
+Consider a round $R^*$ in which every honest party learns an new honest message with probability 0.
+\end{lemma}
+
+\begin{proof}
+First, we observe that, if an honest party learns something new with probability 0, that means that it must already hold everything that it could possibly receive in a bundle. That means that, for every honest party $p_i$, there must be a set of $n - 2t$ honest parties $S_i$ such that, at the beginning of round $R^*$, $p_i$ holds every message held by every $p_j \in S_i$. It follows that every honest party must hold at least $n - 2t$ honest messages at the beginning of round $R^*$. 
+
+In every round, some honest party must be eminent. Call this party $p_e$ and call the set of honest messages $p_e$ holds at the beginning of the round $L_e$. $p_e$'s bundle was delivered to $n - 2t$ other honest parties. Each recipient of $p_e$'s bundle must have already held $L_e$ at the beginning of round $R^*$. 
+
+Now we consider the remaining honest parties that did not receive $p_e$'s bundle. They receive bundles from $n - 2t$ parties and so must receive a bundle from a party that holds $L_e$ at the beginning of the round, by quorum intersection of honest parties. They are guaranteed to learn nothing this round, so they too must hold $L_e$ at the beginning of round $R^*$. $L_e$ is of size at least $n - 2t$ because every honest party holds at least $n -2t$ messages at the beginning of the round, therefore we have shown that a coreset exists at the beginning of round $R^*$.
+\end{proof}
+
+Viewing the above lemma from another angle, we can see that as long as there is not a coreset, some honest party learns some new honest message with probability at least $p$, where $p$ is the probability a party includes a message in its bundle. There are $n - t$ honest parties and $n - t$ messages, so it will take at most $(n - t)^2$ rounds in which an honest party learns something in order for a coreset to be found. In expectation, this is at most $(n - t)^2 / p$. 
 
 \bibliography{References}
 \bibliographystyle{plain}
