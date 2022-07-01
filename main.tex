@@ -5,6 +5,7 @@
 \usepackage{amsthm}
 \usepackage{cancel}
 \usepackage{hyperref}
+\usepackage{graphicx}
 
 \newtheorem{lemma}{Lemma}
 \newtheorem{theorem}{Theorem}
@@ -716,11 +717,35 @@ $< (n - 2t)(n - t)$ as $c \leq n - 2t$.
 We have shown that, regardless of how the messages are allocated to the parties, if fewer than $c$ messages are each held by at least $n - 2t - c + 1$ parties, at least one party must have fewer than $n - 2t$ messages, contradicting our initial assumption.
 \end{proof}
 
+\subsection{Eminent Leaders}
+Every round must have an eminent party. Let us call the eminent party in round $r$ $p_e^r$. This party is guaranteed to send a message to $n - 2t$ parties during round $r+1$. During round $r+1$, every party must receive a bundle from one of the parties that received a bundle from $p_e^r$ by quorum intersection of honest parties. That means that, at the start of round $r+2$, $p_e^r$ is a grandparent of all honest parties, regardless of what the adversary does. Thus, we call $p_e^r$ an \emph{eminent leader} of round $r+2$. Parties that received $p_e^r$'s bundle directly obtained a $p$th fraction of its messages (those they did not already have) in expectation. For the remaining $ \leq t$ honest parties, a $p^2$ fraction. 
+
+This is interesting because it is an emergent property of the protocol and the adversary cannot do anything about it. We've had a lot of trouble considering the adversary's strategy, but maybe this is a way to partially circumvent it.
+
+Some questions this brings up: how do eminent leaders affect eminent messages? Once a message is eminent, it spreads very quickly because all parties that do not have it are guaranteed to hear from a party that does in every subsequent round. It seems natural that eminent leaders may drive eminent messages. How do eminent leaders affect subsequent eminent leaders (both $p_e^r$ and $p_e^{r+1}$ as well as $p_e^r$ and $p_e^{r+2}$)?
+
+\subsection{Potential Discoveries}
+It follows from the proof in section 12 that, in every round before a coreset is formed, there must be at least one honest party that has a nonzero chance of learning at least one new honest message. Let us call that a \emph{potential discovery}. In general, if $p_i$ receives a bundle from a sender that holds $q$ messages that $p_i$ does not have, then that party has $q$ potential discoveries from that bundle. We wish to lower bound the number of potential discoveries across all parties and across all bundles in a given round, possibly as a function of the number of eminent messages/messages in the coreset.
+
+First, we saw that the lower bound is tight, as shown in Figure~\ref{fig:one-potential}. This can be easily generalized to arbitrary $n$ by growing the size of the $n-2t$-clique at the top, and making sure that $t-1$ parties at the bottom have all honest messages. The party that has the potential discovery then holds messages $m_1$ to $m_{n-2t-1}$ and its own message, $m_{n-2t+1}$.
+\begin{figure}[h]
+\centering
+\includegraphics[scale=.4]{./figures/one-potential-discovery.png}
+\caption{Showing the lower bound on the number of potential discoveries is potentially tight for $n=7, t=2$.}
+\label{fig:one-potential}
+\end{figure}
+
+\subsubsection{proof sketches}
+
+We want to show something stronger. First of all, if a message is eminent and only held by $k < n - t$ honest parties, then there must be $n - t - k$ potential discoveries for that message.
+
+Let $c < n - 2t$ be the number of eminent messages. Intuitively, to lower-bound the number of discoveries, we ought to let each eminent message be part of a coreset, $C$, held already held by all honest parties. Every one of $p_e^r$'s, round $r$'s eminent party, messages \emph{not} in $C$ must be a potential discovery for at least one party that receives its bundle (otherwise there would be more than $c$ eminent messages). That means that, in any given round, there are at least $n - 2t - c$ potential discoveries.
+
 \section{A Backwards Analysis}
 Any analysis of converge that fixes a certain message and tries to prove how long it takes until it appears in the coreset fails because it may be the case that the message was never distributed because the adversary has prevented it from sending anything. What if we were to argue backwards, starting with a final coreset and computing how long it took to get there? But to do that, we first must show that the protocol does succeed if given an unlimited number of rounds. We first claim that, during every round of converge, either (1) some honest party learns some new honest message with a nonzero probability or (2) a coreset exists.
 
 \begin{lemma}
-Consider a round $R^*$ in which every honest party learns an new honest message with probability 0.
+Consider a round $R^*$ in which every honest party learns a new honest message with probability 0.
 \end{lemma}
 
 \begin{proof}
@@ -731,7 +756,7 @@ In every round, some honest party must be eminent. Call this party $p_e$ and cal
 Now we consider the remaining honest parties that did not receive $p_e$'s bundle. They receive bundles from $n - 2t$ parties and so must receive a bundle from a party that holds $L_e$ at the beginning of the round, by quorum intersection of honest parties. They are guaranteed to learn nothing this round, so they too must hold $L_e$ at the beginning of round $R^*$. $L_e$ is of size at least $n - 2t$ because every honest party holds at least $n -2t$ messages at the beginning of the round, therefore we have shown that a coreset exists at the beginning of round $R^*$.
 \end{proof}
 
-Viewing the above lemma from another angle, we can see that as long as there is not a coreset, some honest party learns some new honest message with probability at least $p$, where $p$ is the probability a party includes a message in its bundle. There are $n - t$ honest parties and $n - t$ messages, so it will take at most $(n - t)^2$ rounds in which an honest party learns something in order for a coreset to be found. In expectation, this is at most $(n - t)^2 / p$. 
+Viewing the above lemma from another angle, we can see that as long as there is not a coreset, some honest party learns some new honest message with probability at least $p$, where $p$ is the probability a party includes a message in its bundle. There are $n - t$ honest parties and $n - t$ messages, so it will take at most $(n - t)^2$ rounds in which an honest party learns something in order for a coreset to be found. In expectation, this is at most $(n - t)^2 / p$. Regardless of whether that's strictly correct or not, there's clearly an $n^2$ factor somewhere in the round complexity if we assume only a single honest party has the chance of learning a single new thing each round. 
 
 \bibliography{References}
 \bibliographystyle{plain}
