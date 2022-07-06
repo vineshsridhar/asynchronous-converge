@@ -741,6 +741,23 @@ We want to show something stronger. First of all, if a message is eminent and on
 
 Let $c < n - 2t$ be the number of eminent messages. Intuitively, to lower-bound the number of discoveries, we ought to let each eminent message be part of a coreset, $C$, held already held by all honest parties. Every one of $p_e^r$'s, round $r$'s eminent party, messages \emph{not} in $C$ must be a potential discovery for at least one party that receives its bundle (otherwise there would be more than $c$ eminent messages). That means that, in any given round, there are at least $n - 2t - c$ potential discoveries. Of course, this does not even count the number of potential discoveries that originate from other senders. How do we incorporate these? If $c$ messages are shared amongst all honest parties, the rest are non-eminent, and have exactly $n - 2t$ messages, how does that limit what remaining messages each party can hold?
 
+\subsubsection{Relating the number of eminent messages to the number of potential discoveries.}
+In section 12, we saw that if a coreset exists, it is possible for all parties to have no potential discoveries in a round. In Figure~\ref{fig:one-potential}, we saw that if the number of eminent messages is $n - 2t$, then we can meet our lower bound: 1 potential discovery for the entire round (In which all parties but one have all of the eminent messages). What if the number of eminent messages is less than $n - 2t$? Let $c$ be the number of eminent messages.
+\subsubsection{$c = n - 2t - 1$}
+\begin{lemma}
+If each non-eminent message is held by at most 2 parties, then each party has at least 1 potential discovery.
+\end{lemma}
+\begin{proof}
+Assume towards a contradiction that each non-eminent message is held by at most 2 parties but some honest party $p_i$ has 0 potential discoveries. If $p_i$ has 0 potential discoveries, then it learns a new honest message with probability 0 this round. That means that $p_i$ must already hold all the messages held by the parties whose bundles were delivered to $p_i$. 
+
+$p_i$ must receive bundles from at least $n - 2t$ honest parties. We will consider the $n - t - c$ non-eminent messages that $p_i$ has. We first note that no two parties $p_j$ and $p_k$, $j,k \neq i$ whose bundle is delivered to $p_i$ can hold the same non-eminent message $m$. If this were true, then by our assumption, $p_i$ would also hold $m$, meaning 3 parties hold $m$ at the beginning of the round, contradicting our claim. Therefore, $p_i$ holds at least $n - 2t - 1$ non-eminent messages. Furthermore, $p_i$ shares each of those non-eminent message with a distinct sender, meaning that no other honest parties can hold that message without violating our claim. $n - t - c = n - t - (n - 2t - 1) \leq n - 2t$, so only one non-eminent message can be held by the remaining $t$ parties that did not send to $p_i$. By our assumption, only two of the remaining $t$ parties can hold the last non-eminent message, so by the pigeonhole principle, some non-eminent message must be held by at least 3 honest parties, which is a contradiction. (A note on the case in which $t = 1$: if $n = 4$, then if one message is held by all parties, it is impossible for there to be $n - 2t - 1 = 1$ eminent messages. There must be 2. For $n > 4$, if $t = 1$, then there are $n - 1$ honest parties and $n - 3$ eminent messages, meaning only $2$ non-eminent messages. Parties receive $n - 2 > 2$ bundles, so by the pigeonhole principle, any party will receive two bundles from parties that share the same eminent message, meaning that, including $p_i$, 3 parties hold the message).
+
+
+Note on the math: ($n - 2t + n - 2t \geq n - t + 1$, so $n - 2t - (n - 2t - 1) \geq n - t$, so $n - 2t \geq n - t - (n - 2t - 1)$)
+
+
+\end{proof}
+
 \section{A Backwards Analysis}
 Any analysis of converge that fixes a certain message and tries to prove how long it takes until it appears in the coreset fails because it may be the case that the message was never distributed because the adversary has prevented it from sending anything. What if we were to argue backwards, starting with a final coreset and computing how long it took to get there? But to do that, we first must show that the protocol does succeed if given an unlimited number of rounds. We first claim that, during every round of converge, either (1) some honest party learns some new honest message with a nonzero probability or (2) a coreset exists.
 
