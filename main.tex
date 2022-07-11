@@ -807,12 +807,12 @@ $\geq 1 - t*e^{\frac{-m}{n} * \frac{t}{5}}$.
 We have shown that $c$ doubles with probability $1 - min\{(\frac{e}{2})^{\frac{-t*m}n} , t*e^{\frac{-m}{n} * \frac{t}{5}}\}$.
 \end{proof}
 
-Now we consider $c > t/2$, where doubling no longer makes sense. This analysis borrows from lemma 9 of PBC \cite{PBC}.
+Now we consider $c \geq t/2$, where doubling no longer makes sense. This analysis borrows from lemma 9 of PBC \cite{PBC}.
 \begin{lemma}
 If $c \geq t/2$ at the start of a round, then $m_e$ will be held by all honest parties by the end of the round with high probability.
 \end{lemma}
 \begin{proof}
-During this round, every party will receive at least $t/2$ bundles that hold $m_e$. The probability that at least one party does not have $m_e$ by the end of the round regardless is at most $(t/2) * (1 - \rho)^c$ as at most $t/2$ parties may not have $m_e$.\\
+During this round, every party will receive at least $t/2$ bundles that hold $m_e$, and at most $t/2$ parties do not have $m_e$ at the beginning of the round. The probability that at least one party does not have $m_e$ by the end of the round regardless is at most $(t/2) * (1 - \rho)^c$.\\
  $(t/2) * (1 - \rho)^c = (t/2) * (1 - m/n)^c$\\
  $< (t/2) * (1 - m/n)^{t/2} \leq (t/2) * e^{-\frac m n * \frac t 2}$, which is negligible in $m$.
 \end{proof}
