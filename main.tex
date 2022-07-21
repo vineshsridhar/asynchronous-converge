@@ -765,7 +765,7 @@ Note that $1 \leq c \leq t+1$ if $m_e$ is eminent. We want to show how fast the 
 
 The first lemma follows lemma 5 from PBC and shows how $c$ doubles if it is small.
 \begin{lemma}
-Let $\rho = m / n$ be the probability parameter, where $m = 10n/t$. If $c < t / 2$, $c$ doubles every round with high probability.
+Let $\rho = m / n$ be the probability parameter, where $m \geq 10n/t$. If $c < t / 2$, $c$ doubles every round with high probability.
 \end{lemma}
 \begin{proof}
 We consider two cases, one for $c \leq t/5$ and one for $c > t/5$.\\
@@ -833,6 +833,126 @@ Now we consider the remaining honest parties that did not receive $p_e$'s bundle
 \end{proof}
 
 Viewing the above lemma from another angle, we can see that as long as there is not a coreset, some honest party learns some new honest message with probability at least $p$, where $p$ is the probability a party includes a message in its bundle. There are $n - t$ honest parties and $n - t$ messages, so it will take at most $(n - t)^2$ rounds in which an honest party learns something in order for a coreset to be found. In expectation, this is at most $(n - t)^2 / p$. Regardless of whether that's strictly correct or not, there's clearly an $n^2$ factor somewhere in the round complexity if we assume only a single honest party has the chance of learning a single new thing each round. 
+
+\section{Converge as an Asynchronous Data Dissemination Implementation}
+Das et al. \cite{das2021add} define the Asynchronous Data Dissemination (ADD) problem, in which at least $t+1$ honest parties start with a message $M$ and must disseminate the message to the remaining honest parties, which begin holding nothing. We've seen that converge can disseminate eminent messages in $O(\log n)$ rounds w.h.p. when the probability of adding a message to a bundle $\rho = m/n$ for $m \geq 10n/t$, so it seems like converge can act as an ADD protocol if we can find some way to ensure that parties do not get fooled into outputting a different message. 
+
+In their paper, Das et al. present a simple RBC protocol (a single party starts with $M$), shown in algorithm~\ref{bracha-add} which first ensures that $t+1$ parties hold the message and then invokes ADD to disseminate it to the rest of them \cite{das2021add}. It works like so: the sender multicasts their message. Upon receiving $M$, parties hash $M$ into a digest $h$ and then run Bracha RBC as normal using $h$ instead of $M$. At the end of Bracha RBC, the parties finally run ADD, either on $M$ if they received it and it matches the hash they output from the Bracha portion, or $\bot$. Note that, to progress in Bracha RBC, at least $t+1$ honest parties must have received the initial transmission from the sender. Therefore, at the end of the Bracha portion of the protocol, we know that $t+1$ parties hold $M$. By agreement, all honest parties output the same $h$, so any party that ends holding some $M' \neq M$ would input $\bot$ into ADD. Thus we have set up the preconditions for ADD. According to Das et al. The Bracha portion takes $O(n|M|)$ for the initial sender multicast of $M$ plus $O(\kappa n^2)$ for the $ECHO$ and $READY$ messages on the hash of size $\kappa$. They show that their ADD implementation takes $O(n|M| + n^2)$, leading to a total cost of $O(n|M| + \kappa n^2)$.
+
+\begin{algorithm}\label{bracha-add}
+\caption{Simple RBC using ADD \cite{das2021add}}
+
+\SetKwProg{Throughout}{throughout}{:}{}
+\SetKwProg{Define}{define}{:}{}
+\SetKwProg{Upon}{upon}{:}{}
+\SetKwProg{On}{upon}{:}{}
+\SetKwProg{When}{when}{:}{}
+\SetKwProg{Init}{initialize}{:}{}
+\SetKwProg{Main}{main}{:}{}
+\SetKwProg{Meanwhile}{meanwhile}{:}{}
+\SetKwProg{At}{at}{:}{}
+\SetKwProg{cWhile}{while}{:}{}
+\SetKwProg{Procedure}{procedure}{:}{}
+
+\SetKw{Input}{input}
+\SetKw{Trigger}{trigger}
+
+//only broadcaster node\\
+\Input $M$\\
+send $<PROPOSE, M>$ to all\\
+// all nodes\\
+\Upon{receiving $<PROPOSE, M>$ from the broadcaster do}
+{
+	let $h := hash(M)$\\
+	send $<ECHO, h>$ to all
+}
+\Upon{receiving $2t+1 <ECHO, h>$ messages and not having sent a $READY$ message do}
+{
+	send $<READY, h>$ to all
+}
+\Upon{receiving $t+1$ $<READY, h>$ messages and not having sent a $READY$ message do}
+{
+	send $<READY, h>$ to all\\
+}
+\Upon{receiving $2t+1 <READY, h>$ messages do}
+{
+	\If{received $<PROPOSE, M>$ and $h = hash(M)$}
+	{
+		$ADD(M)$
+	}
+	\Else
+	{
+		$ADD(\bot)$
+	}
+}
+\SetAlgoLined
+\SetAlgoNoEnd
+\end{algorithm}
+
+What if we swapped out their ADD implementation with converge? First we would have to guarantee that the adversary could not inject some $M' \neq M$ and fool an honest party into outputting the wrong value. This should be easily fixed by checking if $hash(M'') = h$ for some received $M''$. Assuming the adversary cannot find a collision, this should work. We have shown this in algorithm~\ref{converge-add}. It's communication complexity is $O(n * n * |M| * \rho * \log n)$ as there are at most $n$ senders each sending $n$ bundles which include a message of size $|M|$ with probability $\rho$, all for $O(\log n)$ rounds. $\rho = O(1/n)$, so this comes out to $O(|M| * n \log n)$.
+
+\begin{algorithm}\label{converge-add}
+\caption{Converge ADD Single Sender}
+
+\SetKwProg{Throughout}{throughout}{:}{}
+\SetKwProg{Define}{define}{:}{}
+\SetKwProg{Upon}{upon}{:}{}
+\SetKwProg{For}{for}{:}{}
+\SetKwProg{On}{upon}{:}{}
+\SetKwProg{When}{when}{:}{}
+\SetKwProg{Init}{initialize}{:}{}
+\SetKwProg{Main}{main}{:}{}
+\SetKwProg{Meanwhile}{meanwhile}{:}{}
+\SetKwProg{At}{at}{:}{}
+\SetKwProg{cWhile}{while}{:}{}
+\SetKwProg{Procedure}{procedure}{:}{}
+
+\SetKw{Input}{input}
+\SetKw{Trigger}{trigger}
+
+\Input message $m$, hash $h$, probability param $\rho$\\
+$local \leftarrow m$ \\
+$r \leftarrow 1$\\
+$Gossip(local)$\\
+$received \leftarrow 0$\\
+
+\Upon{receiving a bundle $B$}
+{
+	\If{$B$ is not empty and $hash(B) = h$}
+	{
+		$local \leftarrow B$
+	}
+	$received \leftarrow received + 1$\\
+	\If {$received = n - t$} 
+	{
+		\If{$r = O(\log n) (??)$} 
+		{
+			output $local$ and terminate
+		}
+		\Else {
+			$Gossip(local)$\\
+			$received \leftarrow 0$\\
+			$r \leftarrow r + 1$
+		}
+	}
+}
+
+\Procedure{Gossip(local)}
+{
+	\If {$local \neq \bot$}
+	{
+		\For{each $p_i$}
+		{
+			send $local$ to $p_i$ with probability $\rho$.
+		}
+	}
+
+}
+
+\SetAlgoLined
+\SetAlgoNoEnd
+\end{algorithm}
+
 
 \bibliography{References}
 \bibliographystyle{plain}
