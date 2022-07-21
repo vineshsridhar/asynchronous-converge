@@ -889,7 +889,7 @@ send $<PROPOSE, M>$ to all\\
 \SetAlgoNoEnd
 \end{algorithm}
 
-What if we swapped out their ADD implementation with converge? First we would have to guarantee that the adversary could not inject some $M' \neq M$ and fool an honest party into outputting the wrong value. This should be easily fixed by checking if $hash(M'') = h$ for some received $M''$. Assuming the adversary cannot find a collision, this should work. We have shown this in algorithm~\ref{converge-add}. It's communication complexity is $O(n * n * |M| * \rho * \log n)$ as there are at most $n$ senders each sending $n$ bundles which include a message of size $|M|$ with probability $\rho$, all for $O(\log n)$ rounds. $\rho = O(1/n)$, so this comes out to $O(|M| * n \log n)$.
+What if we swapped out their ADD implementation with converge? First we would have to guarantee that the adversary could not inject some $M' \neq M$ and fool an honest party into outputting the wrong value. This should be easily fixed by checking if $hash(M'') = h$ for some received $M''$. Assuming the adversary cannot find a collision, this should work. We have shown this in algorithm~\ref{converge-add}. It's communication complexity is $O(n * n * |M| * \rho * \log n)$ as there are at most $n$ senders each sending $n$ bundles which include a message of size $|M|$ with probability $\rho$, all for $O(\log n)$ rounds. $\rho = O(1/n)$ (see section 11.3), so this comes out to $O(|M| * n \log n)$. Along with the modified Bracha, this takes $O(|M| n\log n + \kappa n^2)$.
 
 \begin{algorithm}\label{converge-add}
 \caption{Converge ADD Single Sender}
