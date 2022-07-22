@@ -812,9 +812,10 @@ Now we consider $c \geq t/2$, where doubling no longer makes sense. This analysi
 If $c \geq t/2$ at the start of a round, then $m_e$ will be held by all honest parties by the end of that round with high probability.
 \end{lemma}
 \begin{proof}
-During this round, every party will receive at least $t/2$ bundles that may hold $m_e$, and at most $t/2$ parties do not have $m_e$ at the beginning of the round. The probability that at least one party does not have $m_e$ by the end of the round regardless is at most $(t/2) * (1 - \rho)^c$.\\
- $(t/2) * (1 - \rho)^c = (t/2) * (1 - m/n)^c$\\
- $< (t/2) * (1 - m/n)^{t/2} \leq (t/2) * e^{-\frac m n * \frac t 2}$.
+During this round, every party will receive at least $t/2$ bundles that may hold $m_e$, and at most $t/2 + 1$ parties do not have $m_e$ at the beginning of the round. The probability that at least one party does not have $m_e$ by the end of the round regardless is at most $(t/2 + 1) * (1 - \rho)^c$.\\
+ $(t/2 + 1) * (1 - \rho)^c = (t/2 + 1) * (1 - m/n)^c$\\
+ $< (t/2 + 1) * (1 - m/n)^{t/2} \leq (t/2 + 1) * e^{-\frac m n * \frac t 2}$.\\
+ Then the probability that all parties have $m_e$ by the end of the round is at least $(t/2 + 1) * (1 - \rho)^c$.
 \end{proof}
 
 \section{A Backwards Analysis}
