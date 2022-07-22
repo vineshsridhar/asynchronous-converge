@@ -759,30 +759,30 @@ Note on the math: ($n - 2t + n - 2t \geq n - t + 1$, so $n - 2t - (n - 2t - 1) \
 \end{proof}
 
 \subsection{Propagation of Eminent Messages}
-A message $m_e$ is \emph{eminent} if held by at least $n - 2t$ parties ($= t+1$ if $t$ is maximal). This distinction is interesting because, upon crossing this threshold, in every subsequent round, every party that does not have $m_e$ will receive at least 1 bundle that contains $m_e$. Furthermore, if $m_e$ is held by $n - 2t - 1 + c$ parties at the start of a round, every party that does not have $m_e$ will receive at least $c$ bundles that contain $m_e$ during that round. 
+A message $m_e$ is \emph{eminent} if held by at least $n - 2t$ parties ($= t+1$ if $t$ is maximal). This distinction is interesting because, upon crossing this threshold, in every subsequent round, every party that does not have $m_e$ will receive at least 1 bundle that contains $m_e$. Furthermore, if $m_e$ is held by $n - 2t - 1 + c$ parties at the start of a round, every party that does not have $m_e$ will receive at least $c$ bundles that may contain $m_e$ during that round. 
 
 Note that $1 \leq c \leq t+1$ if $m_e$ is eminent. We want to show how fast the remaining $n - t - (n - 2t - 1 + c) = t - c + 1$ (at most $t$) parties receive $m_e$. We can borrow the analysis from PBC's lemma 5 and 9~\cite{PBC}, except instead of propagating to $n$ parties, we only need to propagate to $t$ parties. 
 
 The first lemma follows lemma 5 from PBC and shows how $c$ doubles if it is small.
 \begin{lemma}
-Let $\rho = m / n$ be the probability parameter, where $m \geq 10n/t$. If $c < t / 2$, $c$ doubles every round with high probability.
+Let $\rho = m / n$ be the probability parameter, where $m \geq 10n/t$, and suppose at the start of a round, $n - 2t - 1 + c$ parties hold some message $m_e$, where $1 \leq c < t/2$. Then at the end of that round, at least $n - 2t - 1 + 2c$ parties hold $m_e$ with high probability.
 \end{lemma}
 \begin{proof}
 We consider two cases, one for $c \leq t/5$ and one for $c > t/5$.\\
 \emph{Case 1}: \\
-When $c \leq t/5$, we can apply a lower-tail Chernoff bound. Let $C$ be a random variable that tracks the size of $c$.\\
-Then $E[\mu_C]$ must be at least $t * (1 - (1 - \rho)^{c})$, as there are at most $t$ parties that must receive $m_e$, and each would receive $m_e$ from at least $c$ bundles.\\
-$E[\mu_C] \geq t * (1 - (1 - \rho)^{c})$\\
+When $c \leq t/5$, we can apply a lower-tail Chernoff bound. Let $C$ be a random variable that tracks the size of $c$ at the end of the round.\\
+Then $E[C]$ must be at least $t * (1 - (1 - \rho)^{c})$, as there are at most $t$ parties that do not yet have $m_e$, and each would have a chance of receiving $m_e$ from at least $c$ bundles. Because the bundles are encrypted, the adversary is not aware of the contents of bundles sent by parties that hold $m_e$. Therefore, the adversary's decision to deliver a bundle is independent of the contents of the bundle. \\
+$E[C] \geq t * (1 - (1 - \rho)^{c})$\\
 $\geq t * (1 - (1 - \rho))$\\
 $=t * (1 - (1 - m/n))$\\
 $=t * m/n$
 
-We wish to bound $\Pr[C < \mu_C/2]$. Using a Chernoff bound, we can see that 
+We wish to bound $\Pr[C < E[C]/2]$. Using a Chernoff bound, we can see that 
 \begin{center}
-$\Pr[C < \mu_C/2] < (\frac{e^{-1/2}}{(1/2)^{1/2}})^{\mu_C} = (\frac{e}{2})^{-\mu_C} \leq (\frac{e}{2})^{-t*m/n} \leq (\frac{e}{2})^{-10}$
+$\Pr[C < E[C]/2] < (\frac{e^{-1/2}}{(1/2)^{1/2}})^{E[C]} = (\frac{e}{2})^{-E[C]} \leq (\frac{e}{2})^{-t*m/n} \leq (\frac{e}{2})^{-10}$
 \end{center}
 
-And so $\Pr[C \geq \mu_C/2] \geq 1 - (\frac{e}{2})^{-10}$. To complete the proof, we must show that $\mu_C \geq 4c$.\\
+And so $\Pr[C \geq E[C]/2] \geq 1 - (\frac{e}{2})^{-10}$. To complete the proof, we must show that $E[C] \geq 4c$.\\
 We again start with $\mu_C \geq t * (1 - (1 - \rho)^{c})$.\\
 $\geq t * (1 - e^{-\rho c})$\\
 $= t * (1 - e^{-m/n *c})$\\
@@ -794,13 +794,13 @@ We have shown that $\Pr[C \geq 2c] \geq 1 - (\frac{e}{2})^{-t*m/n} $.\\
 \emph{Case 2}: \\
 Now we will look at $t/5 < c < t/2$.
 
-If we consider some party $p_{\cancel{m_e}}$ that does not hold $m_e$, the probability that $p_{\cancel{m_e}}$ does \emph{not} receive $m_e$ during the next round is at most $(1 - \rho)^{c}$ because at least $c$ bundles will be delivered to $p_{\cancel{m_e}}$ that contain $m_e$.\\
+If we consider some party $p_{\cancel{m_e}}$ that does not hold $m_e$, the probability that $p_{\cancel{m_e}}$ does \emph{not} receive $m_e$ during the next round is at most $(1 - \rho)^{c}$ because at least $c$ bundles will be delivered to $p_{\cancel{m_e}}$ that may contain $m_e$.\\
 $(1 - \rho)^{c} < (1 - \rho)^{t/5}$ because $c > t/5$\\
 $\leq e^{-\rho*t/5}$\\
 $\leq e^{\frac{-m}{n} * \frac{t}{5}}$
 
-Again let $C$ be the random variable that represents to value of $c$ after the round ends. We want to lower bound the probability that $\Pr[C \geq 2c]$.\\
-$\Pr[C \geq 2c] \geq \Pr[C = t]$ because $c < t/2$ and at most $t$ parties do not know $m_e$.\\
+Again let $C$ be the random variable that represents the value of $c$ after the round ends. We want to lower bound the probability that $\Pr[C \geq 2c]$.\\
+$\Pr[C \geq 2c] \geq \Pr[C \geq t]$ because $c < t/2$.\\
 $= 1 - \Pr[C < t]$\\
 $\geq 1 - t*e^{\frac{-m}{n} * \frac{t}{5}}$.
 
@@ -809,12 +809,12 @@ We have shown that $c$ doubles with probability $1 - min\{(\frac{e}{2})^{\frac{-
 
 Now we consider $c \geq t/2$, where doubling no longer makes sense. This analysis borrows from lemma 9 of PBC \cite{PBC}.
 \begin{lemma}
-If $c \geq t/2$ at the start of a round, then $m_e$ will be held by all honest parties by the end of the round with high probability.
+If $c \geq t/2$ at the start of a round, then $m_e$ will be held by all honest parties by the end of that round with high probability.
 \end{lemma}
 \begin{proof}
-During this round, every party will receive at least $t/2$ bundles that hold $m_e$, and at most $t/2$ parties do not have $m_e$ at the beginning of the round. The probability that at least one party does not have $m_e$ by the end of the round regardless is at most $(t/2) * (1 - \rho)^c$.\\
+During this round, every party will receive at least $t/2$ bundles that may hold $m_e$, and at most $t/2$ parties do not have $m_e$ at the beginning of the round. The probability that at least one party does not have $m_e$ by the end of the round regardless is at most $(t/2) * (1 - \rho)^c$.\\
  $(t/2) * (1 - \rho)^c = (t/2) * (1 - m/n)^c$\\
- $< (t/2) * (1 - m/n)^{t/2} \leq (t/2) * e^{-\frac m n * \frac t 2}$, which is negligible in $m$.
+ $< (t/2) * (1 - m/n)^{t/2} \leq (t/2) * e^{-\frac m n * \frac t 2}$.
 \end{proof}
 
 \section{A Backwards Analysis}
@@ -915,10 +915,34 @@ $local \leftarrow m$ \\
 $r \leftarrow 1$\\
 $Gossip(local)$\\
 $received \leftarrow 0$\\
+$buf \leftarrow \{\}$
 
-\Upon{receiving a bundle $B$}
+\Upon{receiving a bundle $<r', B>$ where $r' = r$}
 {
-	\If{$B$ is not empty and $hash(B) = h$}
+	$ReceiveBundle(B)$
+}
+
+\Upon{receiving a bundle $<r', B>$ where $r' > r$} 
+{
+	Add $<r', B>$ to $buf$
+}
+
+\Upon{receiving a bundle $<r', B>$ where $r' < r$}
+{
+	discard $B$
+}
+
+\Procedure{Gossip(local)}
+{
+	\For{each $p_i$}
+	{
+		send $<r, local>$ to $p_i$ with probability $\rho$. Otherwise send $<r, \bot>$ to $p_i$.
+	}
+}
+
+\Procedure{ReceiveBundle(B)}
+{
+	\If{$B$ is not empty and $hash(B) = h$ and $local = \bot$}
 	{
 		$local \leftarrow B$
 	}
@@ -931,22 +955,22 @@ $received \leftarrow 0$\\
 		}
 		\Else {
 			$Gossip(local)$\\
+			$CheckBuffer()$\\
 			$received \leftarrow 0$\\
 			$r \leftarrow r + 1$
 		}
 	}
 }
 
-\Procedure{Gossip(local)}
+\Procedure{CheckBuffer}
 {
-	\If {$local \neq \bot$}
+	\For{each $<r', B>$ in $buf$}
 	{
-		\For{each $p_i$}
+		\If{$r' = r$}
 		{
-			send $local$ to $p_i$ with probability $\rho$.
+			$ReceiveBundle(B)$
 		}
 	}
-
 }
 
 \SetAlgoLined
